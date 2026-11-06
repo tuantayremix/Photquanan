@@ -3,8 +3,6 @@ package com.phot.quanan;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.*;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.*;
 
 public class PostActivity extends Activity {
@@ -59,10 +57,6 @@ public class PostActivity extends Activity {
       Toast.makeText(this, "Điền tên quán, tiêu đề và nội dung", Toast.LENGTH_SHORT).show();
       return;
     }
-    if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-      Toast.makeText(this, "Đang kết nối, thử lại sau giây lát", Toast.LENGTH_SHORT).show();
-      return;
-    }
     Map<String, Object> m = new HashMap<>();
     m.put("name", n);
     m.put("title", t);
@@ -70,12 +64,12 @@ public class PostActivity extends Activity {
     m.put("province", (String) prov.getSelectedItem());
     m.put("district", dist.getText().toString().trim());
     m.put("cat", (String) cat.getSelectedItem());
-    m.put("author", FirebaseAuth.getInstance().getCurrentUser().getUid());
     m.put("ts", System.currentTimeMillis());
-    m.put("likes", new ArrayList<String>());
-    m.put("reports", new ArrayList<String>());
-    FirebaseFirestore.getInstance().collection("posts").add(m)
-      .addOnSuccessListener(r -> finish())
-      .addOnFailureListener(e -> Toast.makeText(this, "Không đăng được: " + e.getMessage(), Toast.LENGTH_LONG).show());
+    m.put("likes", 0);
+    m.put("reports", 0);
+    List<Map<String, Object>> list = Store.load(this);
+    list.add(m);
+    Store.save(this, list);
+    finish();
   }
 }
